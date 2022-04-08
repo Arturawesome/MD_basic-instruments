@@ -16,15 +16,15 @@ Processors: 8 × Intel® Core™ i7-9700KF CPU @ 3.60GHz
 ***VMD*** позволяет представляет собой удобный инстурмент для визуализации молекулярной динамики. 
 
 
-Для установки  ***VMD***, его необходимо скачать и с ***[сайта разработчика](https://www.ks.uiuc.edu/Research/vmd/)***. Далее создать папку для в которой будет установлена программа и поместить туда скачаный архив. Далее необходимо выполнить следующие команда
+Для установки  ***VMD***, его необходимо скачать и с ***[сайта разработчика](https://www.ks.uiuc.edu/Research/vmd/)***. Далее создать папку для в которой будет установлена программа и поместить туда скачаный архив (Для примера разархивация происходит в папке *2021*). Далее необходимо выполнить следующие команды.
 
 
 ```shell
-tar -xvf vmd   
-cd vmd1.9.3
-vmd1.9.3$ ./configure
-vmd1.9.3$ cd src
-src $ sudo make install
+[artur@system 2021]$ tar -xvf vmd   
+[artur@system 2021]$ cd vmd1.9.3
+[artur@system vmd1.9.3]$ ./configure
+[artur@system vmd1.9.3]$ cd src
+[artur@system src]$ sudo make install
 ```
 
 Запуск производится командой
@@ -94,6 +94,11 @@ g++_openmpi_LJ -sf gpu -pk gpu 1 -in input.script
 7. Eigen >= 3.2
 8.  nvidia cuda toolkit
 9.  openmpi                 (in majaro Linux should be initially)
+
+```shell
+[artur@system ]$ sudo pacman -S name_environment
+```
+
 ## Pre-install. Dump trajectory file
 ***HOOMD-blue*** имеет неудобные выходные файлы траекторий, которые нельзя использовать в ***VMD***. Для вывода dump-файлов в формате *.lammpstrj* необходимо поместить файлы *HOOMDDumpWriter.cc* и *HOOMDDumpWriter.h*  в папку *hoomd/deprecated* с заменой.
 
