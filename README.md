@@ -1,24 +1,19 @@
 
-Autor: [Dmitryuk Nikita](https://github.com/NikitaDmitryuk)
+Autor: [Artur D Nasyrov](https://github.com/Arturawesome)
 
-Laboratory: [Soft Matter Group, Bauman MSTU](http://teratech.ru/en)
+Laboratory: [Bauman Digital Soft Matter laboratory, BMSTU](http://teratech.ru/en)
 
-Github repository: [Lammps_compile_gpu_env](https://github.com/NikitaDmitryuk/Lammps_compile_gpu_env)
 
 ---
 
-# Lammps nvidia-docker
+# VMD install
 
 ---
 
-***Docker*** позволяет создавать и запускать контейнеры со своей операционной системой и программами обособленно от компьютера, на котором запускается контейнер, соблюдая все зависимости и переменные среды. Это ускоряет развертывание программ на других компьютерах, так как не требуется устанавливать нужные зависимости и программы.
+***VMD*** позволяет представляет собой удобный инстурмент для визуализации молекулярной динамики. 
 
 
-## Первоначальная настройка
-
-Для работы контейнера необходиы ***драйвера nvidia***, ***docker*** и ***[nvidia-docker](https://github.com/NVIDIA/nvidia-docker)*** версии 2.5 или выше.
-
-Перед использованием *docker* может понадобиться запустить службу:
+Для установки  ***VMD***, его необходимо скачать и с ***[сайта разработчика] (https://www.ks.uiuc.edu/Research/vmd/)*** 
 
 
 ```shell
