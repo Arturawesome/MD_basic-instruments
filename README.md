@@ -82,7 +82,7 @@ g++_openmpi_LJ -sf gpu -pk gpu 1 -in input.script
 
 # HOOMD-blue build
 
-***Hoomd-blue*** является библиотекой python, для молекулярной динамики, которая изначально создавалась для расчетов на видеокарте.
+***[Hoomd-blue](http://glotzerlab.engin.umich.edu/hoomd-blue/)*** является библиотекой для *python*, для молекулярной динамики, которая изначально создавалась для расчетов на видеокарте.
 ## Pre-install
 Для работы ***HOOMD-blue*** необходимы следующие пакеты:
 1. Python >= 3.5           (in majaro Linux should be initially)
