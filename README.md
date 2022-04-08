@@ -1,8 +1,11 @@
 
-Autor: [Artur D Nasyrov](https://github.com/Arturawesome)
+Autor: [Artur D. Nasyrov](https://github.com/Arturawesome)
 
 Laboratory: [Bauman Digital Soft Matter laboratory, BMSTU](http://teratech.ru/en)
 
+Operating System: Manjaro Linux KDE Plasma Version: 5.22.5. 
+
+Processors: 8 × Intel® Core™ i7-9700KF CPU @ 3.60GHz
 
 ---
 
@@ -24,130 +27,120 @@ vmd1.9.3$ cd src
 src $ sudo make install
 ```
 
-Необходимо загрузить следующий контейнер (вне зависимости от операционной системы на пк):
+Запуск производится командой
 
 ```shell
-sudo docker pull nvidia/cuda:10.2-devel-ubuntu18.04
+vmd
 ```
 
-Следующие команды должны выполняться без ошибок:
+
+# Lammps install
+
+***[Lammps](https://www.lammps.org/)***  - пакет созданный для молекулярной динамики на основе языков ***C++*** и ***CUDA*** . 
+
+
+Необходимо скачать и разархивировать Lammpы архив. (Для примера разархивация происходит в папке *2021*)
 
 ```shell
-docker run --runtime=nvidia --rm nvidia/cuda:10.2-devel-ubuntu18.04 nvidia-smi
-sudo docker run --rm --runtime=nvidia nvidia/cuda:10.2-devel-ubuntu18.04 nvcc --version
+[artur@system 2021]$  tar xvf lammps.tar.gz
+```
+В результате образуется папка типа ***lammps-29Sep2021***. В папке 2021 создаем bash файл ***install.sh*** файл с содержанием
+```shell
+cmake -B build_LJ -S lammps-29Sep2021/cmake
+make clean
+cmake build_LJ\
+    -D CMAKE_INSTALL_PREFIX=/opt\
+    -D CMAKE_LIBRARY_PATH=/opt/cuda/lib64/stubs\
+    -D BIN2C=/opt/cuda/bin/bin2c\
+    -D LAMMPS_MACHINE=g++_openmpi_LJ\
+    -D PKG_GPU=on\
+    -D GPU_API=cuda\
+    -D PKG_ASPHERE=on\
+    -D PKG_KSPACE=on\
+    -D PKG_MANYBODY=on\
+    -D PKG_MOLECULE=on\
+    -D PKG_BROWNIAN=on\
+    -D PKG_RIGID=on\
+    -D PKG_MISC=on\
+
+    cmake --build build_LJ -j4
+```
+Далее запускаем данный bash файл 
+```shell
+[artur@system 2021]$ bash install.sh
 ```
 
-## Сборка образа
-
-В файле ***build_lammps_docker.sh*** необходимо указать имя контейнера (*NAME_CONTAINER*), а также версию [архитектуры видеокарты](https://ru.wikipedia.org/wiki/CUDA) (*ARCH_GPU*).
-Дополнительные параметры компиляции можно изменить в ***Dockerfile***.
-
-Папка с исходным кодом с названием **lammps** или **жесткая ссылка** на нее должны находиться в одной папке со скриптом и Dockerfile (*lammps* можно скачать командой: `git clone  --branch=stable https://github.com/lammps/lammps.git`).
-
-Запустить скрипт:
+В результате получаем папку ***build_LJ*** с  исполняемый файлом ***g++_openmpi_LJ***  внутри. Для удобвства можно создать сивольную ссылку на исполнительный файл.  Для зпуская скрипта использовать команду. 
 
 ```shell
-sudo ./build_lammps_docker.sh
+g++_openmpi_LJ -sf gpu -pk gpu 1 -in input.script
 ```
 
-Это создаст контейнер и скомпилирует в нем lammps, который находится в папке ***/lammps в текущей директории***.
-
-Собранный контейнер с названием *NAME_CONTAINER* хранится на компьютере, и не требует повторной сборки, его можно использовать из любой директории.
-
-Список всех образов можно получить командой `sudo docker images`.
-
-## Использование образа
-
-Для запуска контейнера с установленным *lammps*:
-
-```shell
-nvidia-docker run --rm -ti -v $(pwd):/srv/input NAME_CONTAINER
-```
-
-Команда запускает контейнер с названием **NAME_CONTAINER**. Ключ *-v $(pwd):/srv/input* задает папку на компьютере, доступную контейнеру (путь до двоеточия), а в контейнере это будет путь, указанный после двоеточия.
-
-В данном случае контейнеру будет доступна папка, из которой запускается контейнер, а в контейнере все файлы будут лежать в */srv/input*.
-
-После запуска контейнера в нем можно выполнять команды и запускать lammps.
-
-Пример:
-
-```shell
-lmp_g++_openmpi -sf gpu -pk gpu 1 -in in.file
-```
-
-Для выхода из контейнера можно использовать комбинацию клавиш `ctrl + d`.
-
----
-
-# Lammps CMake build
-
----
-
-Поместить файл ***build_lammps_cmake.sh*** в одну директорию с папкой *lammps*. В файле параметр ***gpu_arch*** отвечает за [архитектуру видеокарты](https://ru.wikipedia.org/wiki/CUDA).
-
-Компиляция *lmp_g++_openmpi* выполняется командой:
-
-```shell
-bash build_lammps_cmake.sh
-```
-
-Исполняемый файл *lmp_g++_openmpi* появится в папе *build*. Символьная ссылка на него помещается в папку с моделированием.
 
 
 ---
 
-# Hoomd-blue CMake build
+# HOOMD-blue build
 
----
+***Hoomd-blue*** является библиотекой python, для молекулярной динамики, которая изначально создавалась для расчетов на видеокарте.
+## Pre-install
+Для работы ***HOOMD-blue*** необходимы следующие пакеты:
+1. Python >= 3.5           (in majaro Linux should be initially)
+2. NumPy >= 1.7
+3. CMake >= 2.8.10.1
+4. Make
+5. gcc >= 4.8
+6. pybind11 >= 2.2
+7. Eigen >= 3.2
+8.  nvidia cuda toolkit
+9.  openmpi                 (in majaro Linux should be initially)
+## Pre-install. Dump trajectory file
+***HOOMD-blue*** имеет неудобные выходные файлы траекторий, которые нельзя использовать в ***VMD***. Для вывода dump-файлов в формате *.lammpstrj* необходимо поместить файлы *HOOMDDumpWriter.cc* и *HOOMDDumpWriter.h*  в папку *hoomd/deprecated* с заменой.
 
-***Hoomd-blue*** является библиотекой python. Для удобства использования нескольких разных скомпилированных библиотек используется [Anaconda3](https://docs.anaconda.com/anaconda/install/linux/).
-
-## Dump в формате .lammpstrj
-
-Для вывода dump-файлов в формате *.lammpstrj* необходимо поместить файлы *HOOMDDumpWriter.cc* и *HOOMDDumpWriter.h* находящиеся в папке *hoomd/deprecated* в аналогичную папку в *hoomd* с заменой, и отредактировать их для нужного вывода. 
-
-После компиляции использовать команду: 
-
-```python
-dump.xml(group=hoomd.group.all(), filename="dump", period=100, type=True)
-```
-
-## Компиляция
-
-В строчках в файле ***build_hoomd.sh*** необходимо указать имя окружения и путь до *Anaconda3* соответственно.
-
-```shell
-name_env="EnvName"
-anaconda_path=$HOME/anaconda3
-```
-
-Запуск компиляции из папки с исходниками и скриптом:
+## Install
+Вопреки инструкциям с оффициального сайта ***[HOOMD-blue](https://hoomd-blue.readthedocs.io/en/v3.0.0/building.html)*** создавать и активировать среду *python* в отдельной папке не нужно.
+Наиболее удобным в данном случае будет установка ***HOOMD-blue***  без использования *bash* файла.  Для примера работа происходит в папке *2021*. Необходимо скачать и разархивировать HOOMD архив.
 
 ```shell
-bash build_hoomd.sh 2> log.txt
+[artur@system 2021]$ curl -O https://glotzerlab.engin.umich.edu/Downloads/hoomd/hoomd-v2.9.7.tar.gz
+[artur@system 2021]$ tar xvzf hoomd-v2.9.7.tar.gz
 ```
+Войти в папку с исходниками и создать папку *build* и перейти в нее
+
+```shell
+[artur@system 2021]$ cd hoomd-v2.9.7
+[artur@system hoomd-v2.9.7]$ mkdir build
+[artur@system hoomd-v2.9.7]$ cd build
+```
+в папке *build* выполнить команды:
+```shell
+[artur@system build]$ cmake ../
+[artur@system build]$ ccmake ../
+```
+В спывшем окне поменять строчку с названием *CMAKE_INSTALL_PREFIX* на желаемый путь установки пакета HOOMD, активировать нужные вам параметры компиляции. И сохранить изменения. После редакции в ccmake выполнить компиляцию HOOMD:
+```shell
+[artur@system build]$ make -j4
+[artur@system build]$ ctest
+```
+выполнить установку 
+```shell
+[artur@system build]$ make install -j4
+```
+ Компиляция *HOOMD* выполняется один раз, если вы поменяли исодники (например поменяли потенциал взаимодействия частиц) то выполнять надо будет тольк *$ make install -j4*. Предыдушие шаги выполнять не надо
 
 После компиляции библиотека автоматически устанавливается в окружение с названием *name_env="EnvName"*.
 
-Для ее использования необходимо активировать нужную среду *Anaconda3*:
-
-```shell
-conda activate "name_env"
-```
-
-После этого библиотеку можно использовать импортитировав в python: `import hoomd as hd`
 
 
 ---
 
-# Изменение потенциала взаимодействия
+# Изменение потенциала взаимодействия LAMMPS, HOOMD-blue
 
 ---
 
 ## Lammps
 
-При расчете на видеокарте используется потенциал, находящийся в файле исходников *lammps* по адресу */lib/gpu/lal_lj.cu*.
+При расчете на видеокарте используется потенциал *LJ12-6*, находящийся в файле исходников *lammps* по адресу */lib/gpu/lal_lj.cu*.
 
 Для его замены необходимо поменять строку в которой рассчитывается сила взаимодействия между частицами (желательно в обеих функциях (*void k_lj, void k_lj_fast*)):
 
@@ -158,15 +151,13 @@ numtyp force = r2inv*r6inv*(lj1[mtype].x*r6inv-lj1[mtype].y);
 ...
 ```
 
-Сила взаимодействия рассчитывается как *force = - u' / r*, где *u* - функция потенциала взаимодействия.
 
-После чего необходимо заново скомпилировать *lammps* (пункт [сборки образа](https://github.com/NikitaDmitryuk/Lammps_compile_gpu_env/blob/main/README.md#%D1%81%D0%B1%D0%BE%D1%80%D0%BA%D0%B0-%D0%BE%D0%B1%D1%80%D0%B0%D0%B7%D0%B0)).
+После чего необходимо заново скомпилировать *lammps*.
 
-Новому образу можно дать название, соответствующее потенциалу взаимодействия (*NAME_CONTAINER*).
 
 ***
 
-Для использования этого потенциала в моделировании *in.file* должен содержать следующие строки:
+Для использования этого потенциала в моделировании *input.script* должен содержать следующие строки:
 
     ...
     package gpu 1
@@ -180,4 +171,5 @@ numtyp force = r2inv*r6inv*(lj1[mtype].x*r6inv-lj1[mtype].y);
 
 Исходники [потенциалов](https://hoomd-blue.readthedocs.io/en/v2.9.7/module-md-pair.html) Hoomd находятся в папке *\hoomd\md* c названиями ***EvaluatorPair\*.h***.
 
-Все числовые типы данных должны быть заданы как ***Scalar(число)***.
+Для добавления каких-либо сторонних сил, непредусмотренных в исходниках *HOOMD* удобно работать в файлах *TwoStep_TYPEmd_.cu*. Расчет в данных файлах ведется относительно ОТДЕЛЬНО взятой частицы (не массив в целом).
+
