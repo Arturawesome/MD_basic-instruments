@@ -78,7 +78,93 @@ g++_openmpi_LJ -sf gpu -pk gpu 1 -in input.script
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ---
+
+# HOOMD-blue build v4.8.2
+create the python Environment
+```shell
+[artur@system ]$ python3 -m venv /pathToFolder/PythonEnvForScience
+[artur@system ]$ source /pathToFolder/PythonEnvForScience/bin/activate
+[artur@system ]$ cd /pathToFolder/PythonEnvForScience
+[PythonEnvForScience ]$ 
+```
+You must install required tools anf download hoomd.tar.gz in PythonEnvForScience folder:
+```shell
+[PythonEnvForScience ]$ sudo pacman -S cmake make
+[PythonEnvForScience ]$ sudo pacman -S cuda
+[PythonEnvForScience ]$ python3 -m pip install numpy pybind11 eigen
+```
+hoomd.tar.gz you may download from ***[hoomdTarRepository](https://github.com/glotzerlab/hoomd-blue/releases)***
+
+```shell
+[PythonEnvForScience ]$ tar -xvzf hoomd-4.8.2.tar.gz
+```
+After this, the hoomd-4.8.2 folder will be created. Add the LammpsTrjLike output dump scripts in  PythonEnvForScience/hoomd-4.8.2/hoomd/
+
+```shell
+[PythonEnvForScience ]$ cmake -B buildHoomd -S hoomd-4.8.2/cmake
+(after this, the buildHoomd folder will be created)
+```
+In buildHoomd open CMakeCache.txt file and add click to ENABLE_GPU ->configure. Set CUDA_ARCH_LIST in 80. Configure ->generate;
+
+```shell
+[PythonEnvForScience ]$  cmake --build buildHoomd -j8  
+```
+
+You may have the following error:
+
+```shell
+/hoomd/extern/hipCUB/hipcub/include/hipcub/config.hpp:88:14: fatal error: cub/iterator/tex_ref_input_iterator.cuh: No such file or directory
+   88 |     #include <cub/iterator/tex_ref_input_iterator.cuh>
+      |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+compilation terminated.
+make[2]: *** [hoomd/CMakeFiles/_hoomd.dir/build.make:969: hoomd/CMakeFiles/_hoomd.dir/ParticleGroup.cu.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
+make[1]: *** [CMakeFiles/Makefile2:1252: hoomd/CMakeFiles/_hoomd.dir/all] Error 2
+make: *** [Makefile:146: all] Error 2
+
+```
+
+you should go to the PythonEnvForScience/hoomd-4.8.2/hoomd/extern/hipCUB/hipcub/include/hipcub/config.hpp and delete  #include <cub/iterator/tex_ref_input_iterator.cuh>
+and repeat actions you see before.
+
+
+```shell
+[PythonEnvForScience ]$  cmake --install buildHoomd
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # HOOMD-blue build
 
